@@ -1,0 +1,123 @@
+
+\usepackage[]{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage[UKenglish]{babel}
+\usepackage[UKenglish]{isodate}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{csquotes}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{chngpage}
+\usepackage{calc}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage{hyperref}
+\usepackage[nameinlink]{cleveref}
+\usepackage{fancyhdr}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{titletoc}
+\usepackage[explicit]{titlesec}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{appendix} %Take a wild guess slick
+
+\linespread{1.5}
+
+\titleformat{\chapter}[display]
+  {\normalfont\Huge\bfseries\color{Fuchsia}} % Common formatting for the title
+  {\flushright\Large\sffamily\color{Fuchsia}\MakeUppercase{\chaptertitlename}\hspace{1ex}{\fontsize{60}{60}\selectfont\thechapter}} % Formatting for 'Chapter 1'
+  {20pt} % Space between the number and title text
+  {\Huge #1} % Here the actual title text will be inserted
+
+
+
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{Fuchsia}}
+  {\thesection}{1em}{#1}
+  \titleformat{\subsection}
+  {\normalfont\large\bfseries\color{Fuchsia}}
+  {\thesubsection}{1em}{#1}
+
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\addbibresource{References.bib}
+\usepackage[sc]{mathpazo}
+\linespread{1.05}
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\definecolor{darkred}{rgb}{0.545, 0, 0}
+\definecolor{codegreen}{rgb}{0.25,0.5,0.35}  % 深绿色
+\definecolor{codegray}{rgb}{0.6,0.6,0.6}     % 深灰色
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95} % 浅灰色背景
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},      % 蓝色关键字
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},  % 使用与注释相同的颜色来表示字符串
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=BlueViolet,
+	urlcolor=RoyalPurple,
+	citecolor=Sepia
+}
+\newtheorem{claim}{Claim}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[claim]{Corollary}
+\newtheorem{lemma}[claim]{Lemma}
+\newtheorem*{remark}{\textit{Remark}}
+\newtheorem*{example}{\textit{Example}}
+\theoremstyle{definition} % set conj style same as def style
+\newtheorem{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\renewenvironment{abstract}
+  {\small
+   \begin{center}
+   \bfseries \textcolor{Fuchsia}{Abstract} \vspace{-0.5em} \vspace{0pt}
+   \end{center}
+   \list{}{%
+     \setlength{\leftmargin}{0mm}%
+     \setlength{\rightmargin}{\leftmargin}%
+   }%
+   \item\relax}
+  {\endlist}
+
+
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{\medskipamount}
+\renewcommand\baselinestretch{1.2}
+
+
+\cleanlookdateon
+
+\makeatletter
+\newcommand{\@assignment}[0]{Assignment}
+\newcommand{\assignment}[1]{\renewcommand{\@assignment}{#1}}
+\newcommand{\@supervisor}[0]{}
+\newcommand{\supervisor}[1]{\renewcommand{\@supervisor}{#1}}
+\newcommand{\@yearofstudy}[0]{}
+\newcommand{\yearofstudy}[1]{\renewcommand{\@yearofstudy}{#1}}
+\makeatletter
+
+
+\newtoggle{IsDissertation}
+\toggletrue{IsDissertation} 

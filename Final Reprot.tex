@@ -1,0 +1,54 @@
+\documentclass[a4paper,fleqn,twoside,12pt]{report}
+
+
+%%%%%%%%%%%%%%%%%%%%
+
+\input{Preamble/common.tex}
+\input{Preamble/project.tex}
+
+\assignment{Progress report}
+
+%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{plain}
+\renewcommand{\headrulewidth}{0.0pt}
+
+\makeatletter
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\fancyhead[LE]{\thepage}
+	\fancyhead[RE]{\textit{\@author}}
+	\fancyhead[RO]{\thepage}
+	\fancyhead[LO]{\textit{\@title}}
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+\input{Preamble/titlepage.tex}
+
+\pagestyle{plain}
+
+\include{Preamble/Abstract}
+\include{Preamble/Acknowledgements}
+
+\tableofcontents
+\include{Preamble/List of things}
+\include{Preamble/List of symbols}
+\include{introduction}
+\include{The Spectral Algorithms}
+\include{Partial Seed Set}
+\include{Combined Algorithm}
+\include{Extending Greedy Recovery to Multiple Communities}
+\include{Conclusion}
+\include{Project Management}
+
+\printbibliography[heading=bibintoc, title={Bibliography}]
+% Appendices
+\appendix
+\include{Appendices}
+
+\end{document}

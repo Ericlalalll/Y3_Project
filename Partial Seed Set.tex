@@ -1,0 +1,57 @@
+\chapter{Partial Seed Set}
+\section{Problem Definition}
+\section{Greedy Recovery Algorithm}
+\section{Analysis}
+Let $\Gamma$ denote the set of vertices examined by our greedy procedure, so $V\setminus\Gamma$ is the set of vertices handlded by the random guess $\sigma_{Random}$ in our greedy algo.
+\begin{lemma}\label{lemma1}
+    Let $(G, \sigma)$ be drawn from $SSBM(n, k, p_{in}, p_{out})$, and $\sigma'$ be the assignment computed by our greedy recovery algorithm. If for each vertex $v\in\Gamma,$ $\mathbb{P}(\sigma(v)=\sigma_{Greedy}(v))>\frac{1}{k},$ then $\mathbb{E}({A(\sigma, \sigma'}))>\frac{1}{k}.$
+\end{lemma}
+\begin{proof}
+ We know for vertex $v\in V\setminus\Gamma,$ $\mathbb{P}(\sigma_v=\sigma_v')=\mathbb{P}(\sigma(v)=\sigma_{random}(v))=1/k.$ if $\mathbb{P}(\sigma_v=\sigma_v')>1/k$ for $v\in\Gamma,$ then $\mathbb{E}(\sum_V\mathbb{1}(\sigma_v=\sigma_v'))=\sum_V\mathbb{E}(\mathbb{1}(\sigma_v=\sigma_v'))=\sum_V\mathbb{P}(\sigma_v=\sigma_v')=\sum_\Gamma\mathbb{P}(\sigma(v)=\sigma_{Greedy}(v))+\sum_{V\setminus\Gamma}\mathbb{P}(\sigma(v)=\sigma_{Random}(v))\\>|\Gamma|\frac{1}{k}+|V\setminus\Gamma|\frac{1}{k}=\frac{n}{k},$ so $A(\sigma, \sigma')>1/k.$
+\end{proof}
+For $v\in\Gamma,$ let $R_v$ denote the set R when our greedy examine vertex $v$ and $\Re_v$ denote the set of v's neighbours who has the most common community when greedy examine v. So $\Re_v\subseteq N(v)\cap R_v$ and $\sigma_v'=\sigma_u'$ for any $u\in\Re_v$
+\begin{claim}\label{claim2}
+     Let $(G, \sigma)$ be drawn from $SSBM(n, k, p_{in}, p_{out})$, and $\sigma'$ be the assignment computed by our greedy recovery algorithm. If $SNR>0$ (i.e. $p_{in}>p_{out}$) and $|\Re_v|>max(0,~1-\frac{log(|\Re_v|)}{log(1-1/k)}),$ then $\mathbb{P}(\sigma_v=\sigma_v')>\frac{1}{k}$~~for all $v\in\Gamma.$
+\end{claim}
+\begin{proof}
+    Suppose $(v_1, v_2, \ldots, v_{|\Gamma|})$ is the sequence of vertices examined by our greedy procedure. we induct on the index of vertices in this sequence. let $e_{out}$ denote the edge with endpoints in different communities.\\
+    For $v_1,$ \begin{align*}
+    ~~~~~~~~\mathbb{P}(\sigma_{v_1}\neq\sigma_{v_1}')&=\mathbb{P}(\sigma_{v_1}\neq\sigma_{v_1}'|\sigma_u=\sigma_u'~\text{for any u in}~\Re_{v_1})\\
+    &\leq\mathbb{P}(\{v_1, u\}~\text{is}~e_{out}~\text{for any}~u\in\Re_{v_1})\\
+    &=(\frac{p_{out}}{p_{in}+p_{out}})^{|\Re_{v_1}|}\\
+    &<(1-\frac{1}{k})^{|\Re_{v_1}|} ~~~~~~~\text{as}~(\frac{p_{out}}{p_{in}+p_{out}})<\frac{1}{2}\leq(1-\frac{1}{k})\\
+    &<(1-\frac{1}{k})
+    \end{align*}
+    Now, consider some $v_{i>1}$ in this sequence of vertices. Let $A:=$ the event that $\sigma_{v_i}\neq\sigma_{v_i}'$, $B_i:=$ the even that $i$ vertices in $\Re_{v_i}$ are labelled incorrectly. \begin{align*}
+    ~~~~~~~~\mathbb{P}(\sigma_{v_i}\neq\sigma_{v_i}')&=\sum_{j=0}^{|\Re_{v_i}|}\mathbb{P}(\sigma_{v_i}\neq\sigma_{v_i}'\cap j~\text{vertices in}~\Re_{v_i}~\text{labelled incorrectly})\\
+    &=\sum_{j=0}^{|\Re_{v_i}|}\mathbb{P}(A|B_j)\mathbb{P}(B_j)
+    \end{align*}
+Now, \begin{align*}
+    ~~~~~~~~\mathbb{P}(A|B_j)&\leq\mathbb{P}((|\Re_{v_i}|-j)~\text{edges are }~e_{out}~\text{among all edges between }~v_i~\text{and}~\Re_{v_i})\\
+    &=(\frac{p_{out}}{p_{in}+p_{out}})^{|\Re_{v_i}|-j}\\
+    &<(1-\frac{1}{k})^{|\Re_{v_i}|-j}
+\end{align*} 
+Also by inductive hypothesis, $\mathbb{P}(B_j)<(1-\frac{1}{k})^j,$ and since $|\Re_v|>1-\frac{log(|\Re_v|)}{log(1-1/k)},$ we have $|\Re_v|(1-\frac{1}{1-1/k})^{|\Re_v|}<1-\frac{1}{k}$.\\Hence,
+\begin{align*}
+    ~~~~~~~~\mathbb{P}(\sigma_{v_1}\neq\sigma_{v_1}')&=\sum_{j=0}^{|\Re_{v_i}|}\mathbb{P}(A|B_j)\mathbb{P}(B_j)\\
+    &<\sum_{j=0}^{|\Re_{v_i}|}(1-\frac{1}{k})^j\cdot(1-\frac{1}{k})^{|\Re_{v_i}|-j}\\
+    &=|\Re_{v_i}|(1-\frac{1}{1-1/k})^{|\Re_{v_i}|}\\
+    &<\frac{1}{k}
+\end{align*}
+Therefore, we have shown $\mathbb{P}(\sigma_{v}\neq\sigma_{v}')<1-1/k$ for $v\in\Gamma \Rightarrow\mathbb{P}(\sigma_{v}=\sigma_{v}')>1/k$ for $v\in\Gamma.$
+\end{proof}
+\begin{corollary}
+    Let $(G, \sigma)$ be drawn from $SSBM(n, k, p_{in}, p_{out})$, and $\sigma'$ be the assignment computed by our greedy recovery algorithm. If $SNR>0$ and$|\Re_v|>max(0,~1-\frac{log(|\Re_v|)}{log(1-1/k)}),$ then $\mathbb{E}({A(\sigma, \sigma'}))>\frac{1}{k},$ i.e. our Greedy recovery can do strictly better than random guess in expectation.
+\end{corollary}
+\begin{proof}
+    By Lemma \ref{lemma1} and Claim \ref{claim2}.
+\end{proof}
+\begin{remark}
+    for $k=2$, $|\Re_v|>2$ would be sufficient.
+\end{remark}
+\section{Some Experimental Results for $k=2$}
+\subsection{Spare Graph}
+\subsection{Dense Graph}
+\subsection{Heuristic Improvement}
+Summarise the progress you have made so far. You can cross-reference other 
+Section \ref{sec: Spectral Algorithm based on Non-backtracking Matrix}
