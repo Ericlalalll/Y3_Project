@@ -50,7 +50,7 @@ The agreement between two community vectors $\sigma, \sigma'\in\Omega^k$ is obta
 where $S_k$ is the permutation on $\Omega$.
 \end{definition}
 Let $\Omega_i'$ denote the communities set computed by $\sigma',$ i.e. $\Omega_i'=\{v\in[n]: \sigma_v'=i\}.$\\
-In the paper of \cite{TheSurvey} \cite{refpurpose}, reconstruction is defined as follows:\textcolor{Mahogany}{lets see a wearker def}
+In the paper of \cite{TheSurvey} \cite{firstpaper}, reconstruction is defined as follows:\textcolor{Mahogany}{lets see a wearker def}
 \begin{definition}[Reconstruction]\label{def: recover_1}
 Let $(G, \sigma)$ be drawn from a $SSBM(n, k, \mathcal{P})$, the reconstruction is to compute a mapping $\sigma': [n]\rightarrow \Omega$ with $|\Omega_i'|=|\Omega_j'|$ for any two communities $i, j\in\Omega$   such that $A(\sigma, \sigma')> 1/k$ \textcolor{Mahogany}{with high probability.}
 \end{definition}
@@ -65,7 +65,7 @@ Reconstruction is solved in $SBM(n,k,\mathcal{P})$ if for $(G,\sigma)$ drawn fro
 where we recall that $\Omega_i = \{ v\in [n] : \sigma_v = i \}.$
 \end{definition}
 \begin{remark}
-    In other words, an algorithm solves reconstrcution if it divides the vertcies in the graph into two sets such that vertices from two different communities have different probabilities of being assigned to one of the sets.
+    In other words, an algorithm solves reconstruction if it divides the vertices in the graph into two sets such that vertices from two different communities have different probabilities of being assigned to one of the sets.
 \end{remark}
 \begin{remark}
     In some paper, reconstruction, weak recovery and detection are used interchangeably, but in this report, we only use the terms reconstruction and detection, and treat them separately for clarity.
@@ -77,7 +77,6 @@ we now show that they are equivalent definition for the purpose of this report.
 \begin{proof}
     Let $(G, \sigma)$ be drawn from $SSBM(n, k, \mathcal{P}),$ and $\Omega_i' = \{ v\in [n] : \sigma_v' = i \}.$ \\
     $"\Rightarrow":$ There exists an assignment $\sigma'$ such that $A(\sigma, \sigma')>1/k~w.h.p \Rightarrow \mathbb{P}\left\{A(\sigma, \sigma')>1/k\right\}=1-o(1),$ $\exists\varepsilon>0$ such that $\mathbb{P}\left\{A(\sigma, \sigma')\geq1/k+\varepsilon\right\}=1-o(1),$ so there exits a permutation $\pi$ such that $\sum_{v\in[n]}\mathbb{1}(\sigma_v=\pi(\sigma_v'))\geq n/k + n\varepsilon$ with probability $\geq 1-o(1)$. Let $\phi_v=\pi(\sigma_v'),$ then there exists a community j (w.h.p) such that $\sum_{v\in \Omega_j'}\mathbb{1}(\sigma_v, \phi_v)\geq n/k^2 +n\varepsilon/k$ as otherwise $\sum_{v\in[n]}\mathbb{1}(\sigma_v=\phi_v)< n/k + n\varepsilon.$ Now, let $S=\Omega_j',$ we have $|\Omega_j\cap S|\geq n/k^2 +n\varepsilon/k \Rightarrow \exists$ a community i such that $|\Omega\cap S|<n/k^2$ as otherwise $|S|=|S\setminus(S\cap\Omega_j)|+|S\cap\Omega_j|\geq n/k^2\cdot(k-1)+n/k^2 +n\varepsilon/k>n/k,$ contradiction. Since all these happen with probability at least $1-o(1),$ The equation \ref{equn:1.3} is satisfied.\\
-    
     $"\Leftarrow":$ We induct on the number of communities $k\geq 2$.\\
     For $k=2, V=\Omega_1\cup\Omega_2,$ and $|\Omega_1\cap S|-|\Omega_2\cap S|\geq n\varepsilon/k$ with probability $1-o(1),$ let $S=\Omega_1'\Rightarrow$\begin{align*}
     ~|\Omega_1\cap\Omega_1'|+|\Omega_2\cap\Omega_2'|&=|\Omega_1\cap\Omega_1'|+|\Omega_2\cap(V\setminus\Omega_1')|\\
@@ -103,8 +102,30 @@ We now introduce a conjecture. This conjecture is a big deal in this area, and i
     \item If \(k \geq 5\)\footnote{$k\geq4$ if we don't require $p_{in}>p_{out}.$},  reconstruction is possibly information-theoretically solvable (not necessarily in polynomial time) for SNR $<1$.
 \end{enumerate}
 \end{conjecture}
+Lets see some progress concerning the Kesten-Stigum Bound conjecture. For statement 1 in the conjecture, the postive part was first proved in \cite{mas14} and \cite{mns14b}:
+\begin{theorem}
+    For $k=2$ and $SNR>1,$ reconstruction can be done efficiently.
+\end{theorem}
+\begin{remark}
+    This theorem was later proved by \cite{blm15} with a spectral algorithm based on non-backtracking matrix, which we introduce in section \ref{sec: Spectral Algorithm based on Non-backtracking Matrix}.
+\end{remark}
+\begin{theorem}
+    For $k=2$ and $SNR<1,$ reconstruction is infeasible.
+\end{theorem}
+\begin{proof}
+    it was proved in \cite{mns15} by a reduction to the broadcasting problem on Gaton-Watson tree with Poisson offspring.
+\end{proof}
+Statement 2 of this conjecture was proved in \cite{as16a}:
+\begin{theorem}
+    For $k\geq4,$ reconstruction is information-theoretically solvable for some $SNR<1$ with the typicality sampling algorithm.
+\end{theorem}
 \newpage
 \section{Related work}
+This section provides a brief historical overiew of the developments in this field. Community detetction, or graph clustering has been extensively studied since last 80', a remarkable models and algorithms have been proposed, they can be roughly classified into three categories \cite{review_algo}: Modurlarity-based, Statistical inference and Traditional algorithms: Modularity-based algorithms include the modularity-optimization-based algorithms \cite{review_1_modu_Newman} \cite{review_2_modu_Newman}, which is to maximise the modularity function by finding a good community structure via some heuristics. Statistical inference include belief propagation \cite{TheSurvey} \cite{TheConjecture}. Traditional algorithms include hierarchical clustering \cite{comm_dete_in_graphs}, Girvan-Newman algorithms \cite{review_Newman}, spectral clustering \cite{spec_review_1} \cite{spec_review_2}, and graph-partitioning-based algorithms \cite{partition_review}.\\
+Having discussed various algorithm, the task of evaluating them is important as well. Some benchmarks are devised for graph with known community structure, SBM is arguably the most elegant one among them for the community detection problem \cite{TheConjecture} \cite{userguide}. It was invented in \cite{sbm-review_1}, and is called the planted partition model in theoretical computer science \cite{df89}. Moreover, the SBM serves more than a model of graph clustering. It provides a fertile ground for studying various central problems in machine learning, computer science and statistics duo to it richness in phase transition \cite{TheConjecture} \cite{Emmanuel_sbm}. \\
+The Kesten-Stigum Bound conjecture states a phrase transition phenomenon, which is when under certain threshold, the desired property is almost impossible, but when above the threshold, the desired property suddenly become almost certain to occur. Prominent examples are Connectivity of Erd\H{o}s-R\'{e}nyi random graph and Shannon's coding theorem \cite{shannon}. it has proved to be often instrumental in the developments of algorithms \cite{TheConjecture}.\\
+The standard spectral algorithm, including these based on adjacency matrix and Laplacian matrix, and belief propagation are both capable for reconstruction when the graph is sufficiently dense above the ks threshold \cite{standard_spec_in_dense}, but only belief propagation can achieve the ks threshold when the graph is sparse \cite{firstpaper}, standard spectral algorithm fails a significant distance from the ks threshold \cite{standard_spec_fail}. Therefore, a spectral algorithm based on non-backtracking matrix was introduced in \cite{the_non_backtracking}, which can be viewed as a linearisation of the belief propagation algorithm\cite{as15c}. the non-backtracking matrix-based spectral algorithm was proved to succeed all the way down to the ks threshold in both sparse and dense graph \cite{blm15}. Therefore, it bridges the gap between spectral methods and statistical inference in the effectiveness for community detection. Moreover, non-backtracking matrix-based spectral algorithm is arguably the most efficient and elegant approach to community detection problem \cite{the_non_backtracking} \cite{TheConjecture}.\\
+There are much broader lists of approaches to the community detection problem not covered in this review. It is pretty infeasible to track the vast literature on this subject given how extensively it has been researched. For a more comprehensive overview, we also refer to the paper of \cite{TheConjecture} \cite{comm_dete_in_graphs} \cite{userguide}.
 \section{Objectives}
 \section{Preliminaries}
 \section{Overview}
