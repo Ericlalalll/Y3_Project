@@ -1,10 +1,11 @@
-\documentclass[a4paper,fleqn,twoside,12pt]{report}
+\documentclass[a4paper,twoside,12pt]{report}
 
 
 %%%%%%%%%%%%%%%%%%%%
 
 \input{Preamble/common.tex}
 \input{Preamble/project.tex}
+
 
 \assignment{Progress report}
 
@@ -15,18 +16,20 @@
 
 \makeatletter
 \fancypagestyle{plain}{
-	\fancyhf{}
-	\fancyhead[LE]{\thepage}
-	\fancyhead[RE]{\textit{\@author}}
-	\fancyhead[RO]{\thepage}
-	\fancyhead[LO]{\textit{\@title}}
+    \fancyhf{}
+    \fancyhead[LE]{\thepage}
+    \fancyhead[RE]{\textit{\textcolor{gray}{\@author}}}
+    \fancyhead[RO]{\thepage}
+    \fancyhead[LO]{\textit{\textcolor{gray}{\@title}}}
 }
 \makeatother
-
+\setstretch{1.5}
 %%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\linespread{1.3}
+
+
+
 
 
 \input{Preamble/titlepage.tex}

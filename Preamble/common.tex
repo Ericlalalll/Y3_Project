@@ -9,20 +9,32 @@
 \usepackage{amsthm}
 \usepackage{csquotes}
 \usepackage{mathrsfs}
+\usepackage{float}
 \usepackage{graphicx}
 \usepackage{chngpage}
+\usepackage{blkarray}
 \usepackage{calc}
 \PassOptionsToPackage{hyphens}{url}
-\usepackage{hyperref}
-\usepackage[nameinlink]{cleveref}
 \usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{setspace}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{titletoc}
 \usepackage[explicit]{titlesec}
-\usepackage{algorithm}
+\usepackage[linesnumbered, ruled,vlined]{algorithm2e}
 \usepackage{algpseudocode}
+\newcommand{\Input}[1]{\State \textbf{Input:} #1}
+\newcommand{\Output}[1]{\State \textbf{Output:} #1}
 \usepackage{appendix} %Take a wild guess slick
+\usepackage{caption}
+\captionsetup{
+  font={small,stretch=1.3},
+  skip=5pt,
+  textfont={color=darkgray}
+}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.misc, calc, tikzmark}
 
 
 \titleformat{\chapter}[display]
@@ -88,6 +100,8 @@
 \newtheorem{conjecture}{Conjecture}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
+
+
 
 \renewenvironment{abstract}
   {\small

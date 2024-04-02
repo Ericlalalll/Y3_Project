@@ -1,10 +1,129 @@
 \begin{appendices}
     
 \addcontentsline{toc}{chapter}{Appendices}
+\chapter{Implementations}
+\begin{lstlisting}[language=Python, caption=Implementation of Stochastic Block Model for 2 communities case, label=code:SBM for k=2, numbers=none]
+def generate_SBM(n, c_in, c_out, communities_size):
+    A = np.zeros((n, n))
+    true_communities = {}
+    start_idx = 0
+    community_label = 0
+    for size in communities_size:
+        for i in range(start_idx, start_idx + size):
+            true_communities[i] = community_label
+            for j in range(i, start_idx + size):
+                if np.random.rand() < c_in/n:
+                    A[i, j] = 1
+                    A[j, i] = 1
+        
+        start_idx += size
+        community_label += 1
 
-\chapter{proof}
+    for i in range(n):
+        for j in range(i + 1, n):
+            if true_communities[i] != true_communities[j] and np.random.rand() < c_out/n:
+                A[i, j] = 1
+                A[j, i] = 1
+    G = nx.from_numpy_matrix(A)
+    return G, true_communities # G is undirected
+\end{lstlisting}
+\vspace{10mm}
+\begin{lstlisting}[language=Python, caption=Implementation of Non-Backtracking Matrix, label=code:non-backtracking, numbers=none]
+def non_backtracking_matrix(G):
+    G = G.copy()
+    G_directed = G.to_directed()
+    directed_edges = list(G_directed.edges())
+    
+    m = len(directed_edges)
+    B = lil_matrix((m, m))
+    
+    edge_to_idx = {edge: idx for idx, edge in enumerate(directed_edges)}
+    
+    for edge in directed_edges:
+        u, v = edge
+        for w in G_directed.neighbors(v):
+            if w != u:
+                B[edge_to_idx[(u, v)], edge_to_idx[(v, w)]] = 1
+                
+    return B, edge_to_idx   # B is based on directed graph
+\end{lstlisting}
+\vspace{10mm}
+\begin{lstlisting}[language=Python, caption=Implementation of the Spectral Algorithm based on Non-Backtracking Matrix, label=code: spec_algo, numbers=none]
+def Spectral_Algo(G):
+    G = G.to_directed()
+    B, edge_to_idx = non_backtracking_matrix(G)
+    try:
+        eigenvalues, eigenvectors = eigs(B, k=2, which='LR', tol=1e-3)
+    except ArpackNoConvergence as e:
+        print("ARPACK did not converge! Using what was found so far.")
+        eigenvalues, eigenvectors = e.eigenvalues, e.eigenvectors
+    
+  
+    second_eigenvector = np.real(eigenvectors[:, 1])
+    node_sums = {node: 0 for node in G.nodes()}
 
+    # Sum the components of the second eigenvector for incoming edges
+    for u, v in G.edges():
+        edge_uv_idx = edge_to_idx[(u, v)]
+        node_sums[v] += second_eigenvector[edge_uv_idx]
 
+    # Assign labels based on the sign of the sum
+    labels = {node: 1 if node_sums[node] > 0 else 0 for node in G.nodes()}
+
+    return labels
+\end{lstlisting}
+\vspace{10mm}
+\begin{lstlisting}[language=Python, caption=Implementation of Heuristic Greedy Recovery Algorithm , label=code: heur_greedy, numbers=none]
+def Improved_Greedy_recovery(G, R):
+    updated_R = R.copy()
+    q = deque()
+
+    for v in updated_R:
+        q.append(v)
+
+    while q:
+        v = q.popleft()
+        for u in set(G.neighbors(v)) - set(updated_R):
+            known_neighbors = set(G.neighbors(u)).intersection(updated_R)
+            if known_neighbors:
+                community_counts = Counter([updated_R[n] for n in known_neighbors])
+                most_common_community = community_counts.most_common(1)[0][0]
+                updated_R[u] = most_common_community
+                q.append(u)  # Add the updated vertex to the queue for further propagation
+                
+    # Assign remaining unassigned vertices randomly to one of the communities
+    unassigned_vertices = set(G.nodes()) - set(updated_R.keys())
+    for v in unassigned_vertices:
+        updated_R[v] = np.random.choice([0, 1])  # the two communities labeled 0 and 1
+
+    return updated_R
+\end{lstlisting}
+\vspace{10mm}
+For SBM of multiple groups, we utilise the function stochastic\_block\_model from NetworkX package.
+\begin{lstlisting}[language=Python, caption=Implementation of SBM for multiple groups, label=code: SBM_multi, numbers=none]
+def generate_SBM(n, c_in, c_out, communities_size):
+    p_in = c_in / n
+    p_out = c_out / n
+
+    block_sizes = communities_size
+    k = len(communities_size)
+    block_probs = [[p_in if i == j else p_out for j in range(k)] for i in range(k)]
+ 
+    G = nx.stochastic_block_model(
+        sizes=block_sizes,
+        p=block_probs,
+        directed=False
+    )
+
+    true_communities = {}
+    start_idx = 0
+    for community_label, size in enumerate(communities_size):
+        for i in range(start_idx, start_idx + size):
+            true_communities[i] = community_label
+        start_idx += size
+
+    return G, true_communities
+\end{lstlisting}
 
 
 \newpage
