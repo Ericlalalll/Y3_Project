@@ -1,17 +1,33 @@
-\chapter{Conclusion}
+\chapter{Conclusion}\label{chapter 6}
+In summary, this research project aimed to solve the reconstruction task in expectation in the hard regime of the Kesten-Stigum bound under the setting of a partial seed set. We first introduced some important notations that laid the foundation for subsequent discussion. Then, we discussed an existing approach, the spectral algorithm based on the non-backtracking matrix, for the reconstruction task in the easy regime. Next, we stepped into the hard regime with the partial seed set setting and proposed a greedy recovery algorithm that performed noticeably better than random guessing. We further improved the algorithm's accuracy with some heuristics in dense graphs. Finally, we generalised our algorithm to the case of 5 communities in the hard regime, and its superiority over random guessing remained consistent.\\
+Overall, the objectives of this report have been satisfied, and the effectiveness of the proposed algorithms was substantiated through a series of empirical and mathematical analyses.
 \section{Contribution}
+The main contribution of this project can be summarised as follows:
 \begin{itemize}
-    \item Proved the two kinds of definition of reconstruction is equivalent for our purpose.
-    \item Identified a realistic setting, partial seed set
+    \item Proved that the two definitions of reconstruction are equivalent for the purposes of this study.
+    \item Established a realistic setting known as the partial seed set
     \item Proposed a greedy recovery algorithm for the partial seed set setting that perform strictly better than the random guess when $0<$ SNR $\leq1$ for both $k=2$ and $k=5$
-    \item fast the greedy recovery algorithm in sparse graph
-    \item improved the effective of the greedy recovery algorithm for dense graph.
-    \item provided a mathematical analysis for the effectiveness of this algorithm.
+    \item Improved the efficiency of the greedy recovery algorithm in sparse graph
+    \item improved the effective of the greedy recovery algorithm in dense graph.
+    \item  Implemented all proposed algorithms and conducted comprehensive experiments to validate their performance..
+    \item Provided a mathematical analysis of the effectiveness of the proposed algorithm.
 \end{itemize}
-
-\section{Future Work}
+\section{Limitations}
+While this project has achieved all objectives, it is important to acknowledge certain limitations that influenced the scope and depth of the research. Due to my limited background in statistical physics and information theory, I have not explored this topic in depth, particularly the theoretical aspect of the community detection problem and the phase transition phenomenon.Moreover, there are also some limitations to my empirical and mathematical analysis:
 \begin{itemize}
-    \item For the analysis: apply some more advanced mathematical and probabilistic tool to loose the constraint of $\Re_v$
-    \item more clever heuristic
-    \item  choose the part of assignment from spec which we are more confident
+    \item Bound in the proof of Claim \ref{claim2} is too loose: \begin{enumerate}
+        \item the bound for $\frac{p_{out}}{p_{in}+p_{out}}$ is not tight, if we can link it with SNR value, we might be able to obtain a tighter bound for this formula.
+        \item Currently, we only focus on $\Re_v$, if we also consider vertices in $R_v$, would we be able to get a tight bound for $\mathbb{P}(\sigma_v\neq\sigma_{v}')$
+    \end{enumerate}
+    \item Convert it to w.h.p form: Although this project focus on the algorithm performance in expectation, it's always interesting to ask if we can get the desired outcome with high probability (w.h.p.). I attempted to convert the result in Claim \ref{claim2} as follows: we need $\mathbb{P}(\sum_V\mathbb{1}(\sigma_v=\sigma_{v}')>\frac{n}{k})=1-o(1)$, let $\mathcal{A}$ denote the event that there are at least $n-\frac{n}{k}$ vertices labelled incorrectly, then this is equivalent to saying $\mathbb{P}(\mathcal{A})\leq \frac{1}{n^{\alpha}}$ for some $\alpha>0.$ And $\mathbb{P}(\mathcal{A})\leq\binom{n}{n-\frac{n}{k}}\mathbb{P}(\sigma_v\neq\sigma_{v}')^{n-\frac{n}{k}}$, but $\binom{n}{n-\frac{n}{k}}=\binom{n}{O(n)}$, which grows exponentially, given the upper bound we deduced for $\mathbb{P}(\sigma_v\neq\sigma_{v}')$, this seems not to align well with the w.h.p. form. So, we either need to deduce a tighter bound for event $\mathcal{A}$ and $\mathbb{P}(\sigma_v \neq \sigma_{v}')$, or we may need to change our analysis framework, which probably requires some more advanced probabilistic tools.
+    \item A more sophisticated analysis is needed: The points mentioned suggest a need for a deeper analytical approach, potentially involving knowledge in random processes, percolation theory, and statistical mechanics, which is beyond my current background. Nevertheless, this work has sparked my interest in statistical physics, and I plan to study more courses in these areas in the future.
+    \item Implementation on larger instances: If we implement the algorithm on graphs with a sufficiently large number of vertices that differentiates $\log(n)$ and then randomly pick $\log(n)$ vertices as our partial seed set, we may observe some interesting phenomena. Unfortunately, the parameters we used were $n=10000$ and $n=50000$, but $\log(10000) \approx 9$ and $\log(50000) \approx 11$. So there is not much difference. In order to obtain meaningful results, we might need to run the algorithm on impractically large graphs, which is infeasible given the limited time.
+\end{itemize}
+\section{Future Work}
+Our worksuggest several promising avenues for further research:
+\begin{itemize}
+    \item  Improve the accuracy of the combined algorithm to surpass the spectral algorithm: In this report, we randomly chose the assignments from the spectral algorithm as our partial seed set. However, if we can find a way to select the assignments from the spectral algorithm that are more likely to have a correct assignment, would we be able to outperform the spectral algorithm in the easy regime?
+    \item Use more insightful heuristic strategy: our heuristic plan for algorithm \ref{algo4} is based on the number of a vertex's neighbours whose membership is known and has improved accuracy by up to 12\%. If we use some more clever heuristic, which might involve studying the graph structure, are we able to improve the accuracy further?
+    \item A more elaborate analysis: use knowledge from statistical physics and information theory to provide a more insightful argument for our greedy recovery algorithm.
+    \item Exploring phase transition: If we conduct experiments on larger instances, particularly when the size of the partial seed set is $\mathcal{O}(\log n)$, can we observe any phase transitions occurring with respect to SNR, accuracy, and the size of the partial seed set? For example, in the hard regime, is there a phase transition for the algorithm's accuracy and the size of the partial seed set, where the algorithm's accuracy exhibits a huge jump when the size of the partial seed set is above a certain threshold?
 \end{itemize}

@@ -11,18 +11,25 @@
 
 %%%%%%%%%%%%%%%%%%%%
 
-\pagestyle{plain}
+\pagestyle{fancy}
 \renewcommand{\headrulewidth}{0.0pt}
 
 \makeatletter
-\fancypagestyle{plain}{
-    \fancyhf{}
-    \fancyhead[LE]{\thepage}
-    \fancyhead[RE]{\textit{\textcolor{gray}{\@author}}}
-    \fancyhead[RO]{\thepage}
-    \fancyhead[LO]{\textit{\textcolor{gray}{\@title}}}
-}
+\fancyhead{} % clear all header fields
+\rhead{\textit{\textcolor{gray}{\leftmark}}}
+\fancyfoot{} % clear all footer fields
+\rfoot{\textcolor{gray}{Page \thepage}}
+%\fancypagestyle{plain}{
+%    \fancyhf{}
+%    \fancyhead[LE]{\thepage}
+%    \fancyhead[RE]{\textit{\textcolor{gray}{\@author}}}
+%    \fancyhead[RO]{\thepage}
+%    \fancyhead[LO]{\textit{\textcolor{gray}{\leftmark}}}
+%}
+
 \makeatother
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 \setstretch{1.5}
 %%%%%%%%%%%%%%%%%%%%
 
@@ -34,7 +41,7 @@
 
 \input{Preamble/titlepage.tex}
 
-\pagestyle{plain}
+
 
 \include{Preamble/Abstract}
 \include{Preamble/Acknowledgements}

@@ -29,7 +29,7 @@ Krzakala et al. \cite{the_non-backtracking} point out that the eigenvector $\lam
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{Figures/spectrum_plot.pdf}
-    \caption[Spectrum distribution of non-backtracking matrix]{The spectrum of the non-backtracking matrix of a graph drawn from $SSBM$ with parameters $n=10^3,~k=2,~c_{in}=5,~c_{out}=1.$ In this scenario, SNR $=4/3$ and we can observe that $\mu_2$ is well-separated from bulk of spectrum. Moreover, $\mu_1\to3=(c_{in}+c_{out})/2=c$, $\mu_2\to2=(c_{in}-c{out})/2$ and the radius of the bulk is $\sqrt{c}=\sqrt{3},$ These observations are in alignment with Theorem $\ref{thm: 2.2.1}.$}
+    \caption[Spectrum Distribution of the Non-Backtracking Matrix]{The spectrum of the non-backtracking matrix of a graph drawn from $SSBM$ with parameters $n=10^3,~k=2,~c_{in}=5,~c_{out}=1.$ In this scenario, SNR $=4/3$ and we can observe that $\mu_2$ is well-separated from bulk of spectrum. Moreover, $\mu_1\to3=(c_{in}+c_{out})/2=c$, $\mu_2\to2=(c_{in}-c{out})/2$ and the radius of the bulk is $\sqrt{c}=\sqrt{3},$ These observations are in alignment with Theorem $\ref{thm: 2.2.1}.$}
     \label{fig: spectrum}
 \end{figure}
 
@@ -55,12 +55,12 @@ $\xi\leftarrow$ eigenvector corresponding to the second largest eigenvalue;\\
 \BlankLine
 \caption{Spectral Algorithm base on Non-Backtracking Matrix}
 \end{algorithm}
-\vspace{6mm}
+\clearpage
 Figure \ref{fig:spec_algo} presents the experimental results of Algorithm \ref{algo1}. These results are consistent with those reported in \cite{the_non-backtracking}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{Figures/spec_algo.jpg}
-    \caption[Accuracy of the spectral algorithm based on non-backtracking matrix]{The accuracy of spectral algorithm based on non-backtracking matrix across different SNR values. The experiment is averaged over 10 instances with $n=10^4$ and $c=3.$}
+    \caption[Accuracy of the Spectral Algorithm based on Non-Backtracking Matrix]{The accuracy of spectral algorithm based on non-backtracking matrix across different SNR values. The experiment is averaged over 10 instances with $n=10^4$ and $c=3.$}
     \label{fig:spec_algo}
 \end{figure}
 From Figure \ref{fig:spec_algo}, we observe that when SNR > 1, the spectral algorithm based on the non-backtracking matrix noticeably outperforms random guessing, which has an expected accuracy of 50\% across all SNR values.

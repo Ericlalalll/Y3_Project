@@ -1,26 +1,41 @@
 \chapter{Introduction}
-\textcolor{red}{need to fill in}
-The problem of community detection (CD) can be informally defined as the task of determining a non-overlapping node partition of a graph, unveiling its underlying commu- nity structure.
+Community detection, or graph clustering,  can be informally described as the process of partitioning the vertices within a graph into non-overlapping groups that are more densely connected internally. Since most network exhibits a community structure \cite{comm_dete_in_graphs}, this problem has a significant impact on numerous real-world applications. For example, in social network, to divide individuals into groups according to the frequency of their interactions \cite{social}, or in protein-protein interaction networks, to identify clusters of proteins that perform identical functions within a cell \cite{bio}. Therefore, this problem has sparked huge interest across different scientific communities, such as network science, social science, bioinformatics, machine learning and statistical physics, since the 1980s. Despite the development of a remarkable variety of models and algorithms, the challenge remains unsolved, as it is a $\mathcal{NP}$-hard problem in general \cite{np-hard}.\\
+
+To address the community detection problem, a rigorous mathematical framework is essential. Although various effective models exist, such as \textit{Markov random field} and \textit{factor graph model}. However, this report adopts a probabilistic generative model, called \textit{stochastic block model (SBM)}, because it is arguably the most representative one due to its canonicality. Moreover, the SBM exhibits a phase transition phenomenon, known as the Kesten-Stigum Bound Conjecture, where community detection is impossible when the Signal-to-Noise Ratio (SNR) is less than one (hard regime), while an efficient algorithm exists for SNR > 1 (easy regime) \cite{Emmanuel2023} \cite{deeplearning}.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/community.jpg}
+    \caption[Community Structure]{The left graph is drawn from an SBM with 1000 vertices, 5 built-in communities, vertices inside the same community are connected with probability of $1/50,$ and vertices across different communities connected with a probability $1/1000.$ This figure is cited from \cite{TheConjecture}. The goal of community detection is to recover the right graph from the left graph up to some level of accuracy.}
+    \label{fig:community}
+\end{figure}
+
+This report will stick closely with this conjecture, and its structure will be organised based on the SNR value. We will first introduce an existing solution known as the Spectral Algorithm for the easy regime (SNR > 1). Subsequently, we will delve into the more challenging hard regime (SNR < 1).\\
+The goal of this project is to solve the community detection problem in the hard regime with the aid of additional information, called a partial seed set. We propose a greedy recovery algorithm under this setting and discuss some improvements to this algorithm tailored to specific objective conditions, finally extending it to the case of multiple communities.\\
+
+Before proceeding, we will first formally define the problem and introduce some important concepts that will be used throughout this report.
+
 \section{Formal Definition}
-How can we measure the concept of community?  While traditional definitions relied on counting the number of internal and external edges, the modern perspective emphasizes the probability of vertices sharing edges within a subgraph \cite{userguide}. The existence of communities suggests that vertices have stronger interactions with members of their own community compared to other vertices belonging to different communities. As a result, vertices within the same community are more likely to form connections with each other than with vertices outside their community. Therefore, this gives rise to a natural definition of community.
-\begin{definition}[Community]
+\subsection{Some Concepts}
+How can we measure the concept of community?  While traditional definitions relied on counting the number of internal and external edges, the modern perspective emphasises the probability of vertices sharing edges within a subgraph \cite{userguide}. The existence of communities suggests that vertices have stronger interactions with members of their own community compared to other vertices belonging to different communities. As a result, vertices within the same community are more likely to form connections with each other than with vertices outside their community. Therefore, this gives rise to a natural definition of community.
+\begin{definition}[\textbf{Community}]
    For a graph $G=(V,E)$, we say $\mathcal{C}\subseteq V$ is a community if for $\forall v\in \mathcal{C}$, we have $\mathbb{P}\left(\{v,u\}\in E\right)>\mathbb{P}\left(\{v,u'\}\in E\right)$ for $\forall u\in \mathcal{C}$ and $u'\in V\setminus \mathcal{C}$.
 \end{definition}
 \begin{remark}
     In this report, the terms 'community' and 'group' are used interchangeably.
 \end{remark}
-In order to study the community detection problem, we need some rigorous mathematical framework. There are a variety of effective models, such as \textit{Markove random field} and \textit{factor graph model}. But this report adopts an probabilistic generative models, called \textit{stochastic block model (SBM)}, because it is arguably the most representative one due to its canonicality \cite{Emmanuel2023} \cite{deeplearning}.
-\begin{definition}[Stochastic Block Model]
+
+\begin{definition}[\textbf{Stochastic Block Model}]
 Consider a graph $G=(V, E)$ generated by the Stochastic Block Model $SBM(n, k, \mathcal{P})$, where $n$ is the number of vertices, $k$ denotes the number of communities, and $\mathcal{P}$ is a $k\times k$ probability matrix. Under this model, the graph $G$ possesses a built-in community structure, let $\Omega$ denote the set of communities, then each vertex $v$ is assigned to a community $\sigma_v\in\Omega$, where $\sigma$ is called the planted assignment. For any pair of vertices $u, v \in V$, the probability that there is a connection between $u$ and $v$ is specified by $\mathcal{P}_{\sigma_u, \sigma_v}$, independent of other pairs of vertices. We also define the community sets as $\Omega_i:=\{v\in[n]: \sigma_v=i\}$ for $i\in\Omega$.
 \end{definition}
 \begin{remark}
     In simple terms, each pair of vertices is connected with probability that only depends on their communities. 
 \end{remark}
-This report focus on the case where communities have equal size, i.e. $|\Omega_i|=|\Omega_j|$ for $\forall i, j\in\Omega.$ Therefore, we will assume this without specifying it explicitly from now on.\\
+This report focus on the case where communities have equal size, i.e., $|\Omega_i|=|\Omega_j|$ for $\forall i, j\in\Omega.$ Therefore, we will assume this without specifying it explicitly from now on.\\
 
 We also introduce the symmetric SBM:
 \vspace{-2mm}
-\begin{definition}[Symmetric SBM]
+\begin{definition}[\textbf{Symmetric SBM}]
 A symmetric SBM SSBM is a SBM where the $\sigma_v$ are chosen uniformly and for $\forall u, v\in V,$ \begin{equation}
 \mathbb{P}\left(\{u,v\}\in E\right) = 
     \begin{cases} 
@@ -28,39 +43,44 @@ A symmetric SBM SSBM is a SBM where the $\sigma_v$ are chosen uniformly and for 
     p_{\text{out}} & \text{if } \sigma_u \neq \sigma_v 
     \end{cases}
 \end{equation}
-i.e. the probability matrix $\mathcal{P}$ takes the value $p_{in}$ on the diagonal and $p_{out}$ off the diagonal. Therefore we can use $SSBM(n, k, p_{in}, p_{out})$ to represent $SBM(n, k, \mathcal{P})$
+i.e., the probability matrix $\mathcal{P}$ takes the value $p_{in}$ on the diagonal and $p_{out}$ off the diagonal. Therefore we can use $SSBM(n, k, p_{in}, p_{out})$ to represent $SBM(n, k, \mathcal{P})$
 \end{definition}
 \begin{remark}
     if $p_{in}=p_{out},$ then it reduces to the Erd\H{o}s-R\'{e}nyi random graph.
 \end{remark}
-In this report, we focus on the symmetric case with $p_{in}>p_{out}$, which is called \textit{homophily} or \textit{assortativity.}\\
+In this report, we focus on the symmetric case with $p_{in}>p_{out}$, which is called \textit{homophily} or \textit{assortativity}. On the other hand, the case where $p_{in}<p_{out}$ is called \textit{disassortative.}\\
 
-Let $c_{in}$ be the expected degree connected inside, and $c_{out}$ be the expected degree connected outside. Then each vertex has $p_{in}\cdot \frac{n}{k}=\frac{c_{in}}{k}$ neighbors inside of its group in expectation, simiarly $\frac{c_{out}}{k}$ neighbors of other groups. Hence, we have\begin{equation}
-    c=\frac{c_{in}=(k-1)c_{out}}{k}
+Let $c_{in}$ be the expected degree connected inside, and $c_{out}$ be the expected degree connected outside. Since each group has expected size $\frac{n}{k}$, then each vertex has $p_{in}\cdot \frac{n}{k}=\frac{c_{in}}{k}$ neighbours inside of its group in expectation, simiarly $\frac{c_{out}}{k}$ neighbours in each of the other groups. Hence, we have\begin{equation}
+    c=\frac{c_{in}+(k-1)c_{out}}{k}
 \end{equation}
 
+\subsection{Detection and Reconstruction}
 Now, given a graph G, how can we compute its planted assignment $\sigma$? or  can we even confirm whether it possesses a community structure or not. This brings us two primary tasks in this field, \textit{detection} and \textit{reconstruction}.
-\begin{definition}[Detection]
-    Consider a graph G that is randomly drawn with equal probability from either the Erd\H{o}s-R\'{e}nyi random graph model or a SBM model with the same expected degree. The detection task aims to determine, with an asymptotic probability of $\frac{1}{2}+\varepsilon$ for some $\varepsilon > 0,$ which of the two ensembles the graph G originated from.
+\textcolor{red}{paper cite}
+\begin{definition}[\textbf{Detection}]
+    Consider a graph G that is randomly drawn with equal probability from either the Erd\H{o}s-R\'{e}nyi random graph model or a SBM model with the same expected degree. The detection task aims to determine, with an asymptotic probability of $\frac{1}{2}+\varepsilon$ for some $\varepsilon > 0,$ which of the two ensembles the graph $G$ originated from.
 \end{definition}
 For the reconstruction task, also referred to as weak recovery, the goal is to recover the planted assignment $\sigma$ up to some level of accuracy. There are several reasonable definition, we now introduce two of them, which turn out to be equivalent for the purpose of this project.\\
 Before delving into the definitions, it is essential to first introduce a measurement that will be used to evaluate the performance of the reconstruction task.
-\begin{definition}[Agreement]
+\begin{definition}[\textbf{Agreement}]
 The agreement between two community vectors $\sigma, \sigma'\in\Omega^k$ is determined by maximising the number of common components between $\sigma$ and any relabelling of $\sigma'.$ Mathematically, \begin{equation}
     A(\sigma, \sigma')=\max_{\pi \in S_k} \frac{1}{n} \sum_{i=1}^{n} \mathbb{1}(\sigma_i = \pi(\sigma'_i))
 \end{equation}
 where $S_k$ represents the set of all permutations on $\Omega$.
 \end{definition}
-Let $\Omega_i'$ denote the communities set computed by $\sigma',$ i.e. $\Omega_i'=\{v\in[n]: \sigma_v'=i\}.$\\
+Let $\Omega_i'$ denote the communities set computed by $\sigma',$ i.e., $\Omega_i'=\{v\in[n]: \sigma_v'=i\}.$\\
 In the paper of \cite{TheSurvey} \cite{firstpaper}, reconstruction is defined as follows:\textcolor{Mahogany}{lets see a wearker def}
-\begin{definition}[Reconstruction]\label{def: recover_1}
+\begin{definition}[\textbf{Reconstruction}]\label{def: recover_1}
 Let $(G, \sigma)$ be drawn from a $SSBM(n, k, p_{in}, p_{out})$, the reconstruction is to compute a mapping $\sigma': [n]\rightarrow \Omega$ with $|\Omega_i'|=|\Omega_j'|$ for any two communities $i, j\in\Omega$ (communities of equal size) such that $A(\sigma, \sigma')> 1/k$ \textcolor{Mahogany}{with high probability,} in this case, we say reconstruction is solved in this $SSBM$.
 \end{definition}
 \begin{remark}
     if we assign each vertex $v$ to one of the communities independently and uniformly at random (we call this random guess), then by law of large numbers, we have $A(\sigma, \sigma')\rightarrow 1/k$ \cite{TheSurvey}. So this definition essentially asks whether we can compute a $\sigma'$ that performs strictly better than a random guess in the measure of agreement.
 \end{remark}
-While the definition of reconstruct from \cite{TheConjecture} is as below:
-\begin{definition}[Reconstruction]\label{def: recover_2}
+\begin{remark}
+    If $\sigma'$ simply places all vertices into a single community, then $A(\sigma, \sigma')=1/k,$ which does not solve the reconstruction.
+\end{remark}
+While the definition of reconstruction from \cite{TheConjecture} is as below:
+\begin{definition}[\textbf{Reconstruction}]\label{def: recover_2}
 Reconstruction is solved in $SSBM(n, k, p_{in}, p_{out})$ if for $(G,\sigma)$ drawn from this $SSBM$, there exists $\varepsilon > 0$, $i,j \in\Omega$ and an algorithm that takes $G$ as an input and outputs a partition of $[n]$ into two sets $(S,S^c)$ such that\begin{equation}\label{equn:1.4}
     \mathbb{P}\left\{ \left| \frac{|S \cap \Omega_i|}{|\Omega_i|} - \frac{|S \cap \Omega_j|}{|\Omega_j|} \right| \geq \varepsilon \right\} = 1 - o(1)
 \end{equation}
@@ -101,7 +121,7 @@ We now demonstrate that, for the purposes of this report, the two definitions of
     \begin{align*}
         \sum_V\mathbb{1}(\sigma_v=\sigma_v')&=\sum_{v\in\Omega_1}\mathbb{1}(\sigma_v=\sigma_v')+\sum_{v\in\Omega_2}\mathbb{1}(\sigma_v=\sigma_v')\\
         &=|\Omega_1\cap\Omega_1'|+|\Omega_2|-|\Omega_2\cap\Omega_1'|\\
-        &\geq n\varepsilon/k+n/k~~~with probability 1-o(1)
+        &\geq n\varepsilon/k+n/k~~~\text{with probability}~1-o(1)
     \end{align*} Hence, $\mathbb{P}\left\{A(\sigma, \sigma')\geq1/k+\varepsilon/k\right\}=1-o(1)\Rightarrow A(\sigma, \sigma')>1/k~w.h.p$\\
     Now, consider $V=\cup_{\ell=1}^k\Omega_\ell,$ $\exists i, j\in\Omega$ such that $|\Omega_i\cap S|-|\Omega_j\cap S|\geq n\varepsilon_1/k$ with probability $1-o(1).$ Let $S=\Omega_i'\Rightarrow|\Omega_i\cap\Omega_i'|-|\Omega_j\cap\Omega_i'|\geq n\varepsilon_1/k\Rightarrow |\Omega_i\cap\Omega_i'|\geq n\varepsilon_1/k.$ Let $\varphi: S\rightarrow i$ denote this map. Now, consider $V'=V\setminus\Omega_i,$ by inductive hypothesis, there exists an assignment $\psi$ such that $\frac{1}{n-n/k}\sum_{V'}\mathbb{1}(\sigma_v=\psi_v)>\frac{1}{k-1}\Rightarrow\exists\varepsilon_2>0,$ such that $\frac{1}{n-n/k}\sum_{V'}\mathbb{1}(\sigma_v=\psi_v)\geq\frac{1}{k-1}+\varepsilon_2\Rightarrow\sum_{V'}\mathbb{1}(\sigma_v=\psi_v)\geq\frac{n-n/k}{k-1}+\varepsilon_2(n-n/k)=\frac{n}{k}+\varepsilon_2(n-n/k).$ Now define assignment $\sigma': V\rightarrow\Omega,$ given by $\sigma_v'=\begin{cases}
         \varphi_v & \text{if}~v\in\Omega_i'\\
@@ -114,8 +134,12 @@ We now demonstrate that, for the purposes of this report, the two definitions of
     \end{align*}
     Let $\delta=\frac{\varepsilon_2(n-n/k)+n\varepsilon_1/k}{n},$ then we have $\sum_V\mathbb{1}(\sigma_v=\sigma_v')\geq n/k+n\delta~~w.h.p~\Rightarrow A(\sigma, \sigma')>1/k~~w.h.p.$
 \end{proof}
-We now turn our attention to a pivotal conjecture in this field, which is also the central focus of our report. This conjecture is stated in \cite{TheConjecture} as follows:
-\begin{conjecture}[Kesten-Stigum Bound]\label{Conj}
+
+\subsection{Kesten-Stigum Bound Conjecture}
+Pierre Curie observed that iron has a phase transition at a critical temperature, where its magnetisation abruptly drops to zero due to an equal proportion of atoms pointing in opposite directions. This occurs when the system is excessively hot and noisy, or equivalently, if the interactions between neighboring atoms are too weak, the correlations between atoms diminish exponentially with distance, and the proportion of atoms pointing in each direction approaches 1/2 as $n \to \infty$ \cite{TheSurvey}. Similarly, in community detection under the SBM, researchers hypothesised that a comparable phase transition phenomenon takes place. Specifically, if the community structure is too weak, the fraction of correctly labelled vertices will converge to 1/q, no better than random guessing, as the number of vertices increases.\\
+
+We now turn our attention to this pivotal conjecture in this field, which is also the central focus of our report. This conjecture is stated in \cite{TheConjecture} as follows:
+\begin{conjecture}[\textbf{Kesten-Stigum Bound}]\label{Conj}
     Let $(G, \sigma)$ be drawn from a symmetric SBM with n vertices, k communities, probability $p_{in}$ of connecting vertices within the same community, and probability $p_{out}$ of connecting vertices across different communities. Define $\text{SNR} = \frac{(c_{in}-c_{out})^2}{k(c_{in}+(k-1)c_{out})}.$ Then,
 \begin{enumerate}
     \item For any \(k \geq 2\), if SNR \(> 1\) (above the Kesten-Stigum (KS) threshold), reconstruction is possibly solvable in polynomial time.
@@ -127,7 +151,7 @@ Let's review some progress made regarding the Kesten-Stigum Bound conjecture. Fo
     For $k=2$ and SNR $>1,$ reconstruction can be solved efficiently.
 \end{theorem}
 \begin{remark}
-    This theorem was later proved in \cite{blm15} using a spectral algorithm based on non-backtracking matrix, which we introduce in section \ref{sec: Spectral Algorithm based on Non-backtracking Matrix}.
+    This theorem was later proved in \cite{blm15} using a spectral algorithm based on non-backtracking matrix, which we shall introduce in section \ref{sec: Spectral Algorithm based on Non-backtracking Matrix}.
 \end{remark}
 For the negative part of the first statement, it was shown in \cite{mns15} that:
 \begin{theorem}\label{thm:1.1.2}
@@ -137,17 +161,16 @@ For the negative part of the first statement, it was shown in \cite{mns15} that:
     This theorem was proved by a reduction to the broadcasting problem on Gaton-Watson tree with Poisson offspring.
 \end{remark}
 
-Finally, for $k>2$ of the fist statement and the Statement 2 of this conjecture was proved in \cite{as16a} and \cite{As16b}:
+Finally, the case $k>2$ of the fist statement and the Statement 2 of this conjecture was proved in \cite{As16b} and \cite{as16a}:
 \begin{theorem}\label{thm:1.1.3}
 (part 1 is presented in \cite{As16b}, part 2 is presented in \cite{as16a})
 \begin{itemize}
-    \item For $K\geq2,$ reconstruction is solvable if SNR $>1$ with approximate
-acyclic belief propagation algorithm.
+    \item For $K\geq2,$ reconstruction is efficiently solvable if SNR $>1$ with approximate acyclic belief propagation algorithm.
     \item For $k\geq4,$ reconstruction is information-theoretically solvable for some SNR $<1$ with the typicality sampling algorithm.
 \end{itemize}
 \end{theorem}
 \begin{remark}
-    Therefore, we have two thresholds, one is the computational threshold, above which we have efficient algorithm that solves the reconstruction problem. the other one is information-theoretic threshold, above it we can solve the reconstruction but not necessarily in polynomial time. below it we simply have no sufficient information to solve reconstruction. The two threshold coincides at SNR $=1$ for the case of $k=2$, but per theorem \ref{thm:1.1.3}, there is a gap between the computational threshold and the information-theoretic threshold as visualise in figure \ref{fig:phase_trans}.
+    Therefore, we have two thresholds, one is the computational threshold, above which we have efficient algorithm that solves the reconstruction problem. the other one is information-theoretic threshold, above it we can solve the reconstruction but not necessarily in polynomial time, below it we simply have no sufficient information to solve reconstruction. The two threshold coincides at SNR $=1$ for the case of $k=2$, but according to theorem \ref{thm:1.1.3}, there is a gap between the computational threshold and the information-theoretic threshold as visualised in figure \ref{fig:phase_trans}.
 \end{remark}
 \clearpage
 \section{Objectives}
@@ -155,13 +178,14 @@ Inspired by the Kesten-Stigum Bound conjecture and our Claim \ref{claim1}, this 
 \textbf{Primary Objectives:}
 \begin{itemize}
     \item Identify a reasonable setting for the addition information.
-    \item Design an algorithm that strictly surpass the random guess in expectation for SNR $<1$ on $SSBM(n, 2, p_{in}, p_{out})$ of 2 communities of equal size, assisted by this extra information.
+    \item Design an algorithm that strictly surpass the random guess in expectation in the hard regime (SNR $\leq1$) on $SSBM(n, 2, p_{in}, p_{out})$ with 2 communities of equal size, assisted by this extra information.
     \item Implement the algorithm and conduct a thorough empirical analysis of its performance.
 \end{itemize}
-Following the convention in this field, after an in-depth exploration of the two-community case, we will consider extending our approach to scenarios with multiple communities ($k \geq 5$). Therefore,\vspace{2mm}\\
+Following the convention in this field, after an in-depth exploration of the two-community case, we will consider extending our approach to scenarios with multiple communities ($k \geq 5$). Therefore, \vspace{2mm}\\
 \textbf{Secondary Objectives:}
 \begin{itemize}
-    \item Generalise our algorithm to the case of five communities and evaluate its effectiveness against random guessing on $SSBM(n, 5, p_{in}, p_{out})$ with five communities of equal size.
+    \item Conduct a rigorous mathematical analysis to evaluate the effectiveness of the proposed algorithm.
+    \item Generalise our algorithm to the case of five communities and evaluate its effectiveness against random guessing on $SSBM(n, 5, p_{in}, p_{out})$ with five equally-sized communities in the hard regime.
 \end{itemize}
 \section{Related work}
 Community detection, also known as graph clustering, has been a topic of extensive research since the 1980s. Over the years, numerous models and algorithms have been developed, which can be broadly categorised into three main groups \cite{review_algo}: Modurlarity-based, Statistical inference and Traditional algorithms. Modularity-based algorithms aim to maximise the modularity function by identifying a suitable community structure through various heuristic approaches  \cite{review_1_modu_Newman} \cite{review_2_modu_Newman}. Statistical inference include random walk method and belief propagation algorithm\cite{TheSurvey} \cite{TheConjecture}. Traditional algorithms include hierarchical clustering \cite{comm_dete_in_graphs}, Girvan-Newman algorithms \cite{review_Newman}, spectral clustering \cite{spec_review_1} \cite{spec_review_2}, and graph-partitioning-based algorithms \cite{partition_review}.\\
@@ -169,7 +193,7 @@ After exploring different algorithms, it's crucial to assess their effectiveness
 \begin{figure}[ht]
     \centering
     \includegraphics[width=1.1\linewidth]{Figures/phase_trans.jpg}
-    \caption[Pahse transition for the Kesten-Stigum Bound conjecture]{Phase transition for the Kesten-Stigum Bound conjecture. There is a remarkable surge at SNR = 1, where the reconstruction problem shifts from being impossible to achieve efficiently to being efficiently solvable. For $k=2$ and $3$, information-theoretic and computational threshold are both at $SNR$ = 1, but for $k\geq5$ on assortative case, the information-theoretic threshold is $\theta(logk/k)$ while computation threshold is 1 \cite{TheSurvey}.}
+    \caption[Phase Transition for the Kesten-Stigum Bound Conjecture]{Phase transition for the Kesten-Stigum Bound conjecture. There is a remarkable surge at SNR = 1, where the reconstruction problem shifts from being impossible to achieve efficiently to being efficiently solvable. For $k=2$ and $3$, information-theoretic and computational threshold are both at $SNR$ = 1, but for $k\geq5$ on assortative case, the information-theoretic threshold is $\theta(logk/k)$ while computation threshold is 1 \cite{TheSurvey}.}
     \label{fig:phase_trans}
 \end{figure}
 The Kesten-Stigum Bound conjecture describes a phrase transition phenomenon (see figure \ref{fig:phase_trans}), where a desired property becomes almost impossible to achieve below a certain threshold but suddenly becomes highly likely to occur once the threshold is exceeded. Prominent examples include the connectivity of Erd\H{o}s-R\'{e}nyi random graph and Shannon's coding theorem \cite{shannon}. Phrase transition phenomenon has played a crucial role in the development of various algorithms, often serving as a guiding principle \cite{TheConjecture}.\\
@@ -180,9 +204,11 @@ This review doesn't encompass the full spectrum of the existing solutions to com
 The rest of this report is structured as follows:
 \begin{itemize}
     \item Chapter \ref{chapter:2}: This chapter focuses on the easy regime, where SNR $>1.$ We first introduce the standard spectral algorithm and discuss its limitations. Then, we present the spectral algorithm based on the non-backtracking matrix and highlight its advantages.
-    \item Chapter \ref{chapter:3}: This chapter focuses on the hard regime, where SNR $<1.$ We introduce the partial seed set setting and propose a greedy recovery algorithm designed for this setting. We then provide a mathematical analysis of the algorithm and present experimental results for the two-community case.
-    \item Chapter \ref{chapter 4}: This chapter investigates the performance of combining the spectral algorithm and our greedy recovery algorithm for the case of two communities and SNR $<1.$ We explore the potential benefits and limitations of this hybrid approach
+    \item Chapter \ref{chapter:3}: This chapter focuses on the hard regime, where SNR $<1.$ We introduce the partial seed set setting and propose a greedy recovery algorithm designed for this setting and discuss some improvements concerning the performance and efficiency of this algorithm. We then provide a mathematical analysis of the algorithm and present experimental results for the two-community case.
+    \item Chapter \ref{chapter 4}: This chapter investigates the performance of combining the spectral algorithm and our greedy recovery algorithm for the case of two communities and SNR $>1.$ We explore the potential benefits and limitations of this hybrid approach
     \item Chapter \ref{chapter 5}: This chapter generalises our greedy recovery algorithm to the case of five communities.
+    \item Chapter \ref{chapter 6}: This chapter summaries the work done in this project, including the main contributions, limitations, and discuss potential future work.
+    \item Chapter \ref{chapter 6}: This chapter discuss project management and methodology.
 \end{itemize}
 \section{Preliminaries}
 \begin{definition}[Adjacency matrix]
