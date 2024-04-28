@@ -73,7 +73,7 @@ def Spectral_Algo(G):
     return labels
 \end{lstlisting}
 \vspace{10mm}
-\begin{lstlisting}[language=Python, caption=Implementation of Heuristic Greedy Recovery Algorithm , label=code: heur_greedy, numbers=none]
+\begin{lstlisting}[language=Python, caption=Implementation of Greedy Recovery Algorithm , label=code: heur_greedy, numbers=none]
 def Improved_Greedy_recovery(G, R):
     updated_R = R.copy()
     q = deque()
@@ -101,7 +101,7 @@ def Improved_Greedy_recovery(G, R):
 \vspace{10mm}
 For SBM of multiple groups, we utilise the function stochastic\_block\_model from NetworkX package.
 \begin{lstlisting}[language=Python, caption=Implementation of SBM for multiple groups, label=code: SBM_multi, numbers=none]
-def generate_SBM(n, c_in, c_out, communities_size):
+def generate_SBM_improved(n, c_in, c_out, communities_size):
     p_in = c_in / n
     p_out = c_out / n
 
