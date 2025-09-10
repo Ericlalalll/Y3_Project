@@ -1,1 +1,1 @@
-Discrete Mathematics Project
+Discrete Mathematics Project on Community Detection
